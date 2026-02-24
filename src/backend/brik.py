@@ -17,29 +17,6 @@ brikker = [" Start", "Rødovrevej", "Fælles", "Hvidovrevej", "Roskildevej", "Va
            "Amerika Plads", "Langelinie Alle", "Fælles", "Nordre Toldbod",
            "Østbanegade", "Svanemøllen", "Strandpromenaden", "Fælles", "Trianglen", "Østerbrogade"]
 
-class Spiller:
-    def __init__(self, navn, start_pos = 0):
-        self.navn = navn
-        self.pos = start_pos
-        self.penge = 1500
-        self.ejendomme = []
-
-    def __str__(self):
-        return f"{self.navn} er på {brikker[self.pos]} og har {self.penge} kr. og ejendomme: {[e.navn for e in self.ejendomme]}"
-    def __repr__(self):
-        return self.navn
-    
-    
-    def flyt(self, afstand):
-        self.pos = (self.pos + afstand) % n_brikker
-        
-    def køb(self, brik):
-        if self.penge >= brik.pris:
-            self.penge -= brik.pris
-            self.ejendomme.append(brik)
-            brik.ejer = self
-        else:
-            print(f"{self.navn} har ikke nok penge til at købe {brik.navn}")
         
 class Brik:
     def __init__(self, navn, pris):
@@ -47,12 +24,5 @@ class Brik:
         self.pris = pris
         self.ejer = None
         
-class Bræt:
-    def __init__(self, antal_spillere = 4, antal_brikker = 40):
-        self.spillere = [Spiller(f"Spiller {i+1}", 0) for i in range(antal_spillere)]
-        self.brikker = [Brik(brikker[i], priser[i]) for i in range(antal_brikker)]
-    
-class Terninger:
-    def kast(self):
-        return np.random.randint(1, 7) + np.random.randint(1, 7)
+
     
