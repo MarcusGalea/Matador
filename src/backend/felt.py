@@ -14,21 +14,20 @@ class Felt:
     """
     Et felt på brættet. Har et navn og en farve (for at kunne tegne det senere).
     """
-    NABOER = defaultdict(list) #en dictionary der holder styr på felter af samme farve
+    naboer = defaultdict(list) #en dictionary der holder styr på felter af samme farve
     def __init__(self, 
                  navn: str,
                  farve: tuple,
                  ):
         self.navn = navn
         self.farve = farve #rgb tuple 
-        for nabo in Felt.NABOER[farve]:
-            nabo.naboer.append(self) #giv naboerne dette felt som nabo
-        self.naboer = Felt.NABOER[farve] #gem naboerne i feltet
+        Felt.naboer[self.farve].append(self) #liste over felter med samme farve
 
     def __str__(self):
         return self.navn
     def __repr__(self):
         return self.navn
+
         
     
 
@@ -62,6 +61,10 @@ class Grund(Felt):
             return 0
         
     def køb_hus(self) -> bool:
+        same_owner = all(felt.ejer == self.ejer for felt in Felt.naboer[self.farve])
+        if not same_owner:
+            print(f"Alle grunde i farven {self.farve} skal ejes af samme spiller for at kunne købe hus.")
+            return False
         if self.huse < 5:
             self.huse += 1
             return True
