@@ -1,7 +1,6 @@
-from spiller import Spiller
-from brik import Brik, priser, brikker
-
+from backend.spiller import Spiller
+from backend.felt import Felt, NAMES, priser
 class Bræt:
-    def __init__(self, antal_spillere = 4, antal_brikker = 40):
+    def __init__(self, antal_spillere = 4, antal_felter = 40):
         self.spillere = [Spiller(f"Spiller {i+1}", 0) for i in range(antal_spillere)]
-        self.brikker = [Brik(brikker[i], priser[i]) for i in range(antal_brikker)]
+        self.brikker = [Felt(NAMES[i], priser[i]) for i in range(antal_felter)]

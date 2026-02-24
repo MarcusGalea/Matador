@@ -3,7 +3,7 @@ Dette er en simpel implementering af en spil engine for det klassiske brætspil 
 
 ## BACKEND
 Der er tre hovedkomponenter i backend:
-- `brik.py`: Indeholder definitionen af brikkerne på brættet, deres priser og andre relevante oplysninger.
+- `felt.py`: Indeholder definitionen af feltnerne på brættet, deres priser og andre relevante oplysninger.
 - `spiller.py`: Indeholder definitionen af spilleren, herunder deres navn, position på brættet, penge og ejendomme.
 - `bræt.py`: Indeholder definitionen af brættet, herunder spillere og brikker. Brættet håndterer også spillets logik, såsom at flytte spillere, købe ejendomme og betale leje.
 
