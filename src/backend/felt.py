@@ -56,17 +56,20 @@ class Grund(Felt):
 
     def lejebeløb(self) -> int:
         if self.ejer is not None:
+            print(f"Lejebeløbet for {self.navn} med {self.huse} huse er {self.alle_lejebeløb[self.huse]}.")
             return self.alle_lejebeløb[self.huse]
         else:
+            print(f"{self.navn} har ingen ejer, så der skal ikke betales leje.")
             return 0
         
     def køb_hus(self) -> bool:
-        same_owner = all(felt.ejer == self.ejer for felt in Felt.naboer[self.farve])
+        same_owner = all((felt.ejer == self.ejer) and felt.ejer is not None for felt in Felt.naboer[self.farve])
         if not same_owner:
             print(f"Alle grunde i farven {self.farve} skal ejes af samme spiller for at kunne købe hus.")
             return False
         if self.huse < 5:
             self.huse += 1
+            print(f"Et hus er købt på {self.navn}. Der er nu {self.huse} huse på grunden.")
             return True
         else:
             print(f"Der kan ikke købes flere huse på {self.navn}.")
@@ -75,6 +78,7 @@ class Grund(Felt):
     def sælg_hus(self) -> bool:
         if self.huse > 0:
             self.huse -= 1
+            print(f"Et hus er solgt på {self.navn}. Der er nu {self.huse} huse tilbage.")
             return True
         else:
             print(f"Der er ingen huse at sælge på {self.navn}.")
@@ -84,6 +88,7 @@ class Grund(Felt):
         if self.ejer is not None and not self.pantsat and self.huse == 0:
             self.pantsat = True
             self.pris //= 2
+            print(f"{self.navn} er nu pantsat, og prisen er nu {self.pris}.")
             return True
         else:
             print(f"{self.navn} kan ikke pantsættes.")
@@ -93,9 +98,10 @@ class Grund(Felt):
         if self.pantsat:
             self.pantsat = False
             self.pris *= 2
+            print(f"{self.navn} er nu frigivet fra pant, og prisen er nu {self.pris}.")
             return True
         else:
-            print(f"{self.navn} er ikke pantsat.")
+            print(f"{self.navn} er ikke pantsat til en værdi af {self.pris}.")
             return False
         
     

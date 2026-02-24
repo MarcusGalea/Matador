@@ -66,3 +66,6 @@ COLORS = [  RED, LIGHT_BROWN, LIGHT_BROWN, LIGHT_BROWN,
 
 felter = [Grund(name, color, price) for name, price, color in zip(NAMES, priser, COLORS)]
 spillere = [Spiller(f"Spiller {i+1}", 0) for i in range(4)]
+
+bræt = Bræt(felter, spillere)
+bræt.spil()
