@@ -10,6 +10,8 @@ class Spiller:
         self.pos = start_pos
         self.penge = 30000
         self.ejendomme = []
+        self.fængsel = False
+        self.fri_fængsel_kort = 0
 
     def __str__(self):
         return f"{self.navn} er på position {self.pos} og har {self.penge} kr. og ejendomme: {[e.navn for e in self.ejendomme]}"
@@ -37,7 +39,11 @@ class Spiller:
             self.penge += 4000
         self.pos = (self.pos + antal_felter) % bræt_længde
 
-
+    def nettoformue(self) -> int:
+        formue = self.penge
+        for grund in self.ejendomme:
+            formue += grund.pris + grund.huse * grund.hus_pris
+        return formue
 
     ### PENGE METODER ###
     def _betal(self,beløb: int) -> bool:
