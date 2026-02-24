@@ -2,65 +2,55 @@
 from enum import Enum
 import numpy as np
 #import defaultdict
+from collections import defaultdict
+
 n_felter = 40
 leje_procent_af_pris = 0.125
 leje_procent_pr_hus = 0.5
-        
-class COLOR(Enum):
-    WHITE = (255, 255, 255)
-    BLACK = (0, 0, 0)
-    GRAY = (200, 200, 200)
-    RED = (255, 0, 0)
-    ORANGE = (255, 165, 0)
 
-    BLUE = (0, 0, 255)
-    YELLOW = (255, 255, 0)
-    PURPLE = (128, 0, 128)
-    BROWN = (165, 42, 42)
-    GREEN = (0, 128, 0)
-    PINK = (255, 192, 203)
-    #CREATE MORE COLORS
-    MAGENTA = (255, 0, 255)
-    LIGHT_BLUE = (173, 216, 230)
-    LIGHT_GREEN = (144, 238, 144)
-    LIGHT_YELLOW = (255, 255, 224)
-    LIGHT_BROWN = (210, 180, 140)
 
-    def __init__(self, grunde = []):
-        self.grunde = grunde
-    
 
 class Felt:
+    """
+    Et felt på brættet. Har et navn og en farve (for at kunne tegne det senere).
+    """
+    NABOER = defaultdict(list) #en dictionary der holder styr på felter af samme farve
     def __init__(self, 
                  navn: str,
-                 farve: str | None = None
+                 farve: tuple,
                  ):
         self.navn = navn
-        self.farve = farve
+        self.farve = farve #rgb tuple 
+        for nabo in Felt.NABOER[farve]:
+            nabo.naboer.append(self) #giv naboerne dette felt som nabo
+        self.naboer = Felt.NABOER[farve] #gem naboerne i feltet
 
     def __str__(self):
         return self.navn
     def __repr__(self):
         return self.navn
+        
     
-class Chance(Felt):
-    def __init__(self, navn: str):
-        super().__init__(navn)
 
 
 class Grund(Felt):
+    """
+    En grund, som kan købes af en spiller. Den har en pris, og hvis en anden spiller lander på den, skal de betale leje til ejeren.
+    """
     def __init__(self, 
                  navn: str, 
-                 pris: int, 
-                 farve: str | None = None,
+                 farve: tuple = (255, 255, 255),
+                 pris: int = 0,  
                  huspris: int | None = None,
-                 alle_lejebeløb: list[int] | None = None
+                 alle_lejebeløb: list[int] | None = None,
                  ):
-        super().__init__(navn, farve=farve)
+        super().__init__(navn, farve)
+        
+        self.pris = pris #prisen for at købe grunden
+        self.ejer = None # ingen ejer i starten
+        self.huse = 0 # antal huse på grunden, starter med 0
+        self.pantsat = False # om grunden er pantsat eller ej
 
-        self.ejer = None
-        self.huse = 0
-        self.pantsat = False
         self.hus_pris = huspris if huspris is not None else int(0.5*pris)
         self.alle_lejebeløb = [pris * leje_procent_af_pris * ((1+ leje_procent_pr_hus) ** i) for i in range(6)] if alle_lejebeløb is None else alle_lejebeløb
     
@@ -107,3 +97,51 @@ class Grund(Felt):
         
     
     
+
+class Chance(Felt):
+    """
+    Chance feltet, hvor spilleren trækker et chancekort."""
+    def __init__(self, navn: str, farve = (0,0,0)):
+        super().__init__(navn, farve)
+    #TODO
+
+
+class Fængsel(Felt):
+    """
+    Fængselsfeltet, hvor spilleren kommer i fængsel, hvis de lander på det. Spilleren kan komme ud af fængslet ved at betale en bøde eller ved at bruge et "kom ud af fængsel gratis" kort.
+    """
+    def __init__(self, navn: str, farve = (0,0,0)):
+        super().__init__(navn, farve)
+    #TODO
+
+class MolsLinjen(Felt):
+    """
+    Mols Linjen feltet, hvor spilleren skal betale for at køre med Mols Linjen, hvis de lander på det.
+    """
+    def __init__(self, navn: str, farve = (0,0,0)):
+        super().__init__(navn, farve)
+    #TODO
+
+class Scandlines(Felt):
+    """
+    Scandlines feltet, hvor spilleren skal betale for at køre med Scandlines, hvis de lander på det.
+    """
+    def __init__(self, navn: str, farve = (0,0,0)):
+        super().__init__(navn, farve)
+    #TODO
+
+class Skat(Felt):
+    """
+    Skat feltet, hvor spilleren skal betale skat til parkering, hvis de lander på det.
+    """
+    def __init__(self, navn: str, farve = (0,0,0)):
+        super().__init__(navn, farve)
+    #TODO
+
+class Parkering(Felt):
+    """
+    Gratis parkeringsfeltet, hvor spilleren kan samle alle de penge, der er betalt i skat, hvis de lander på det.
+    """
+    def __init__(self, navn: str, farve = (0,0,0)):
+        super().__init__(navn, farve)
+    #TODO

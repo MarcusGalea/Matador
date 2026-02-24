@@ -1,5 +1,5 @@
-from src.backend.bræt import Bræt, Felt, Spiller
-from src.backend.felt import Felt, Grund
+from src.backend.bræt import Bræt,  Spiller
+from src.backend.felt import Felt, Grund, NABOER
 
 import numpy as np
 priser = [0, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550,
@@ -25,16 +25,44 @@ NAMES = ["START",
         "Rådhuspladsen", "Kgs. Nytorv", "Nørrebrogade", "Frederiksberg Allé",
         ]
         
-felter = [Grund(name, price) for name, price in zip(NAMES, priser)]
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (200, 200, 200)
+RED = (255, 0, 0)
+ORANGE = (255, 165, 0)
+
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+PURPLE = (128, 0, 128)
+BROWN = (165, 42, 42)
+GREEN = (0, 128, 0)
+PINK = (255, 192, 203)
+#CREATE MORE COLORS
+MAGENTA = (255, 0, 255)
+LIGHT_BLUE = (173, 216, 230)
+LIGHT_GREEN = (144, 238, 144)
+LIGHT_YELLOW = (255, 255, 224)
+LIGHT_BROWN = (210, 180, 140)
+
+COLORS = [  RED, LIGHT_BROWN, LIGHT_BROWN, LIGHT_BROWN,
+            YELLOW, YELLOW, YELLOW,
+            BLACK,
+            GRAY, GRAY, GRAY,
+            WHITE,
+            BLUE, BLUE, BLUE,
+            PURPLE, PURPLE, PURPLE,
+            RED, RED, RED,
+            LIGHT_GREEN,
+            WHITE, 
+            GREEN, GREEN, GREEN,
+            BROWN, BROWN, BROWN,
+            PINK, PINK, PINK,
+            WHITE,
+            MAGENTA, MAGENTA, MAGENTA,
+            LIGHT_BLUE, LIGHT_BLUE, LIGHT_BLUE,
+            LIGHT_YELLOW, LIGHT_YELLOW,
+        ]
+
+felter = [Grund(name, color, price) for name, price, color in zip(NAMES, priser, COLORS)]
 spillere = [Spiller(f"Spiller {i+1}", 0) for i in range(4)]
-
-bræt = Bræt(felter, spillere)
-
-import matplotlib.pyplot as plt
-
-antal_huse = np.arange(6)
-# leje_beløb = [1000, 4000,12000, 28000, 34000, 40000]
-leje_beløb = [50, 250, 750, 2250, 4000, 6000]
-#plot leje_beløb
-plt.plot(antal_huse, leje_beløb, marker='o')
-plt.show()
