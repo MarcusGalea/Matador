@@ -52,7 +52,11 @@ class Spiller:
         self.pos = (self.pos + antal_felter) % bræt_længde
         print(f"{self.navn} flytter til position {self.pos}.")
 
-
+    def nettoformue(self) -> int:
+        formue = self.penge
+        for grund in self.ejendomme:
+            formue += grund.pris + grund.huse * grund.hus_pris
+        return formue
 
     ### PENGE METODER ###
     def _betal(self,beløb: int) ->+ bool:
