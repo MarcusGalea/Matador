@@ -1,15 +1,9 @@
 import pygame
 import numpy as np
-import random
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from src.backend.spiller import Spiller
-from src.backend.felt import Felt, Grund
-random.seed()
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 1000))
+screen = pygame.display.set_mode((1280, 1280))
 clock = pygame.time.Clock()
 running = True
 dt = 0
@@ -25,23 +19,21 @@ rotating = False
 rotate_start_mouse = None
 rotate_start_angle = None
 
-# Player visual config
-PLAYER_COLORS = [(0, 200, 255), (255, 80, 80), (80, 255, 80), (255, 200, 50)]
-PLAYER_OFFSETS = [(-10, -10), (10, -10), (-10, 10), (10, 10)]
+# Player pieces — 4 players with different controls and slight positional offsets
 player_radius = 15
-
-# Game state: "WAIT_ROLL", "WAIT_BUY", "GAME_OVER"
-game_state = "WAIT_ROLL"
-messages = []
-MAX_MESSAGES = 8
-buy_grund = None
+players = [
+    {"tile": 0, "color": (0, 200, 255),   "offset": (-10, -10), "left": pygame.K_a,      "right": pygame.K_d},       # Player 1: A / D
+    {"tile": 0, "color": (255, 80, 80),    "offset": ( 10, -10), "left": pygame.K_LEFT,   "right": pygame.K_RIGHT},   # Player 2: ← / →
+    {"tile": 0, "color": (80, 255, 80),    "offset": (-10,  10), "left": pygame.K_j,      "right": pygame.K_l},       # Player 3: J / L
+    {"tile": 0, "color": (255, 200, 50),   "offset": ( 10,  10), "left": pygame.K_KP4,    "right": pygame.K_KP6},    # Player 4: Numpad 4 / Numpad 6
+]
 
 # Pop-up state
 popup_open = False
 popup_tile = -1
-popup_rect = pygame.Rect(0, 0, 400, 350)
+popup_rect = pygame.Rect(0, 0, 400, 300)
 popup_rect.center = (screen.get_width() // 2, screen.get_height() // 2)
-popup_close_rect = pygame.Rect(0, 0, 30, 30)
+popup_close_rect = pygame.Rect(0, 0, 30, 30)  # will be positioned relative to popup
 
 
 # Colors
@@ -90,16 +82,14 @@ def handle_events():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            if not popup_open:
+                for p in players:
+                    if event.key == p["left"]:
+                        p["tile"] = (p["tile"] + 1) % n_brikker
+                    elif event.key == p["right"]:
+                        p["tile"] = (p["tile"] - 1) % n_brikker
             if event.key == pygame.K_ESCAPE:
                 popup_open = False
-            elif not popup_open:
-                if game_state == "WAIT_ROLL" and event.key == pygame.K_SPACE:
-                    do_roll()
-                elif game_state == "WAIT_BUY":
-                    if event.key == pygame.K_j:
-                        do_buy(True)
-                    elif event.key == pygame.K_n:
-                        do_buy(False)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse = pygame.Vector2(event.pos)
@@ -192,119 +182,6 @@ NAMES = ["START", "Østerbrogade", "Grønningen", "Bredgade",
             ]
 
 
-# --- Backend game setup ---
-priser = [0, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550,
-          600, 650, 700, 750, 800, 850, 900, 950, 1000, 1050,
-          1100, 1150, 1200, 1250, 1300, 1350, 1400, 1450, 1500,
-          1550, 1600, 1650, 1700, 1750, 1800, 1850, 1900, 1950,
-          2000]
-
-felter = [Grund(name, color, price) for name, price, color in zip(NAMES, priser, COLORS)]
-spillere = [Spiller("Spiller 1"), Spiller("Spiller 2"), Spiller("Spiller 3"), Spiller("Spiller 4")]
-nuværende_spiller_index = 0
-
-
-def add_message(msg):
-    messages.append(msg)
-    if len(messages) > MAX_MESSAGES:
-        messages.pop(0)
-
-
-def get_nuværende_spiller():
-    return spillere[nuværende_spiller_index]
-
-
-def næste_spiller():
-    global nuværende_spiller_index
-    nuværende_spiller_index = (nuværende_spiller_index + 1) % len(spillere)
-    attempts = 0
-    while get_nuværende_spiller().konkurs and attempts < len(spillere):
-        nuværende_spiller_index = (nuværende_spiller_index + 1) % len(spillere)
-        attempts += 1
-
-
-def check_game_over():
-    global game_state
-    alive = [s for s in spillere if not s.konkurs]
-    if len(alive) <= 1:
-        if alive:
-            add_message(f"{alive[0].navn} har vundet spillet!")
-        game_state = "GAME_OVER"
-        return True
-    return False
-
-
-def do_roll():
-    """Execute dice roll and movement for current player."""
-    global game_state, buy_grund
-    spiller = get_nuværende_spiller()
-    if spiller.konkurs:
-        add_message(f"{spiller.navn} er konkurs og springer over.")
-        næste_spiller()
-        return
-
-    add_message(f"--- {spiller.navn}s tur ---")
-    terning1 = random.randint(1, 6)
-    terning2 = random.randint(1, 6)
-    total = terning1 + terning2
-    add_message(f"Slog {terning1} + {terning2} = {total}")
-
-    if (spiller.pos + total) >= n_brikker:
-        spiller.penge += 4000
-        add_message(f"Passerer START - modtager 4000 kr!")
-
-    spiller.pos = (spiller.pos + total) % n_brikker
-    felt = felter[spiller.pos]
-    add_message(f"Lander på {felt.navn}")
-
-    # Pay rent if owned by someone else
-    if isinstance(felt, Grund) and felt.ejer is not None and felt.ejer != spiller:
-        leje = int(felt.alle_lejebeløb[felt.huse])
-        if spiller.penge >= leje:
-            spiller.penge -= leje
-            felt.ejer.penge += leje
-            add_message(f"Betaler {leje} kr. i leje til {felt.ejer.navn}")
-        else:
-            add_message(f"Kan ikke betale {leje} kr. - KONKURS!")
-            spiller.konkurs = True
-            if check_game_over():
-                return
-            næste_spiller()
-            game_state = "WAIT_ROLL"
-            return
-
-    # Offer to buy if unowned
-    if isinstance(felt, Grund) and felt.ejer is None and felt.pris > 0:
-        if spiller.penge >= felt.pris:
-            buy_grund = felt
-            game_state = "WAIT_BUY"
-            add_message(f"Køb {felt.navn} for {felt.pris} kr? (J = Ja, N = Nej)")
-            return
-
-    næste_spiller()
-    game_state = "WAIT_ROLL"
-
-
-def do_buy(accept):
-    """Handle buy decision."""
-    global game_state, buy_grund
-    spiller = get_nuværende_spiller()
-    if accept and buy_grund:
-        if spiller.penge >= buy_grund.pris:
-            spiller.penge -= buy_grund.pris
-            buy_grund.ejer = spiller
-            spiller.ejendomme.append(buy_grund)
-            add_message(f"{spiller.navn} køber {buy_grund.navn} for {buy_grund.pris} kr!")
-        else:
-            add_message(f"Ikke nok penge!")
-    else:
-        if buy_grund:
-            add_message(f"{spiller.navn} køber ikke {buy_grund.navn}.")
-    buy_grund = None
-    næste_spiller()
-    game_state = "WAIT_ROLL"
-
-
 def draw_board():
     board_radius = (np.minimum(screen.get_width(), screen.get_height()) / 2) * zoom
     inner_radius = board_radius - 200 * zoom
@@ -365,17 +242,15 @@ def get_tile_world_pos(tile_index):
     return center + pygame.Vector2(np.cos(np.radians(angle)), np.sin(np.radians(angle))) * btn_distance
 
 
-def draw_players():
+def draw_player():
     radius = int(player_radius * zoom)
-    for idx, spiller in enumerate(spillere):
-        if spiller.konkurs:
-            continue
-        pos = get_tile_world_pos(spiller.pos)
+    for p in players:
+        pos = get_tile_world_pos(p["tile"])
         screen_pos = zoomed(pos)
-        ox, oy = PLAYER_OFFSETS[idx]
+        ox, oy = p["offset"]
         draw_x = int(screen_pos.x + ox * zoom)
         draw_y = int(screen_pos.y + oy * zoom)
-        pygame.draw.circle(screen, PLAYER_COLORS[idx], (draw_x, draw_y), radius)
+        pygame.draw.circle(screen, p["color"], (draw_x, draw_y), radius)
         pygame.draw.circle(screen, BLACK, (draw_x, draw_y), radius, max(1, int(2 * zoom)))
 
 
@@ -383,48 +258,35 @@ def draw_popup():
     global popup_close_rect
     if not popup_open or popup_tile < 0:
         return
+    # Draw semi-transparent overlay
     overlay = pygame.Surface((screen.get_width(), screen.get_height()), pygame.SRCALPHA)
     overlay.fill((0, 0, 0, 120))
     screen.blit(overlay, (0, 0))
 
+    # Center the popup
     popup_rect.center = (screen.get_width() // 2, screen.get_height() // 2)
+
+    # Draw popup background
     pygame.draw.rect(screen, WHITE, popup_rect, border_radius=12)
     pygame.draw.rect(screen, BLACK, popup_rect, 3, border_radius=12)
 
+    # Tile color bar at the top
     color = COLORS[popup_tile % len(COLORS)]
     color_bar = pygame.Rect(popup_rect.x + 3, popup_rect.y + 3, popup_rect.width - 6, 50)
     pygame.draw.rect(screen, color, color_bar, border_radius=10)
 
+    # Tile number
     title_font = pygame.font.SysFont(None, 40)
     tile_num = title_font.render(f"Felt {popup_tile + 1}", True, BLACK)
     screen.blit(tile_num, (popup_rect.x + 20, popup_rect.y + 65))
 
+    # Tile name
     name = NAMES[popup_tile % len(NAMES)]
     name_font = pygame.font.SysFont(None, 36)
     name_surface = name_font.render(name, True, BLACK)
     screen.blit(name_surface, (popup_rect.x + 20, popup_rect.y + 110))
 
-    # Show game info for this tile
-    if popup_tile < len(felter):
-        felt = felter[popup_tile]
-        if isinstance(felt, Grund):
-            info_font = pygame.font.SysFont(None, 28)
-            y = popup_rect.y + 155
-            pris_text = info_font.render(f"Pris: {felt.pris} kr.", True, BLACK)
-            screen.blit(pris_text, (popup_rect.x + 20, y))
-            y += 30
-            ejer_name = felt.ejer.navn if felt.ejer else "Ingen"
-            ejer_text = info_font.render(f"Ejer: {ejer_name}", True, BLACK)
-            screen.blit(ejer_text, (popup_rect.x + 20, y))
-            y += 30
-            if felt.huse > 0:
-                huse_text = info_font.render(f"Huse: {felt.huse}", True, BLACK)
-                screen.blit(huse_text, (popup_rect.x + 20, y))
-                y += 30
-            leje = int(felt.alle_lejebeløb[felt.huse])
-            leje_text = info_font.render(f"Leje: {leje} kr.", True, BLACK)
-            screen.blit(leje_text, (popup_rect.x + 20, y))
-
+    # Close button (X) in top-right corner
     popup_close_rect = pygame.Rect(popup_rect.right - 40, popup_rect.y + 8, 30, 30)
     pygame.draw.rect(screen, RED, popup_close_rect, border_radius=5)
     close_font = pygame.font.SysFont(None, 30)
@@ -433,77 +295,12 @@ def draw_popup():
     screen.blit(x_text, x_rect)
 
 
-def draw_hud():
-    """Draw player info panel at the top of the screen."""
-    panel_h = 70
-    panel = pygame.Surface((screen.get_width(), panel_h), pygame.SRCALPHA)
-    panel.fill((0, 0, 0, 180))
-    screen.blit(panel, (0, 0))
-
-    x = 20
-    font = pygame.font.SysFont(None, 26)
-    for idx, spiller in enumerate(spillere):
-        color = PLAYER_COLORS[idx]
-        if spiller.konkurs:
-            color = GRAY
-        is_current = (idx == nuværende_spiller_index)
-        pygame.draw.circle(screen, color, (x + 8, 20), 8)
-        if is_current:
-            pygame.draw.circle(screen, WHITE, (x + 8, 20), 11, 2)
-        info = f"{spiller.navn}: {spiller.penge} kr."
-        if spiller.konkurs:
-            info = f"{spiller.navn}: KONKURS"
-        text = font.render(info, True, color)
-        screen.blit(text, (x + 22, 12))
-        ejendom_text = font.render(f"Ejendomme: {len(spiller.ejendomme)}", True, color)
-        screen.blit(ejendom_text, (x + 22, 38))
-        x += 310
-
-    # Turn hint
-    hint_font = pygame.font.SysFont(None, 24)
-    sp = get_nuværende_spiller()
-    if game_state == "WAIT_ROLL":
-        hint = f"{sp.navn}s tur - tryk MELLEMRUM for at slå"
-    elif game_state == "WAIT_BUY":
-        hint = f"{sp.navn}: Tryk J for Ja, N for Nej"
-    elif game_state == "GAME_OVER":
-        hint = "Spillet er slut!"
-    else:
-        hint = ""
-    hint_surface = hint_font.render(hint, True, YELLOW)
-    screen.blit(hint_surface, (20, 56))
-
-
-def draw_messages():
-    """Draw message log at the bottom of the screen."""
-    if not messages:
-        return
-    n = min(len(messages), MAX_MESSAGES)
-    panel_h = 28 * n + 20
-    panel_y = screen.get_height() - panel_h
-    panel = pygame.Surface((screen.get_width(), panel_h), pygame.SRCALPHA)
-    panel.fill((0, 0, 0, 180))
-    screen.blit(panel, (0, panel_y))
-
-    font = pygame.font.SysFont(None, 24)
-    for i, msg in enumerate(messages[-n:]):
-        text = font.render(msg, True, WHITE)
-        screen.blit(text, (20, panel_y + 10 + i * 28))
-
-
-# --- Welcome messages ---
-add_message("Velkommen til Matador!")
-add_message(f"{get_nuværende_spiller().navn} starter. Tryk MELLEMRUM for at slå.")
-
-# --- Main loop ---
 while running:
     handle_events()
     handle_drag()
     draw_board()
-    draw_players()
+    draw_player()
     draw_popup()
-    draw_hud()
-    draw_messages()
     pygame.display.flip()
     dt = clock.tick(60) / 1000
 
