@@ -9,7 +9,7 @@ class Bræt:
         self.felter = felter
         self.spillere = spillere
         self.n_felter = len(felter)
-        self.fængels_pos = next((i for i, felt in enumerate(felter) if felt.navn.lower() == "fængsel"), None)
+        self.fængsel_pos = next((i for i, felt in enumerate(felter) if felt.navn.lower() == "fængsel"), None)
 
     def __str__(self):
         return f"Bræt med felter: {[f.navn for f in self.felter]} og spillere: {[s.navn for s in self.spillere]}"

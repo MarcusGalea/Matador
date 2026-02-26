@@ -59,7 +59,7 @@ class Spiller:
         return formue
 
     ### PENGE METODER ###
-    def _betal(self,beløb: int) ->+ bool:
+    def _betal(self,beløb: int) -> bool:
         
         if self.penge >= beløb:
             self.penge -= beløb
