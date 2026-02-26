@@ -1,5 +1,5 @@
 from src.backend.bræt import Bræt,  Spiller
-from src.backend.felt import Felt, Grund, NABOER
+from src.backend.felt import Felt, Grund
 
 import numpy as np
 priser = [0, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550,
