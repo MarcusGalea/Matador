@@ -9,6 +9,7 @@ class Bræt:
         self.felter = felter
         self.spillere = spillere
         self.n_felter = len(felter)
+        self.fængels_pos = next((i for i, felt in enumerate(felter) if felt.navn.lower() == "fængsel"), None)
 
     def __str__(self):
         return f"Bræt med felter: {[f.navn for f in self.felter]} og spillere: {[s.navn for s in self.spillere]}"
@@ -38,7 +39,7 @@ class Bræt:
             print(f"{spiller.navn} skal sælge en ejendom (eller huse) for at betale leje på {nuværende_felt.navn}.")
             # Simulering af sælg ejendom
             #TODO # Implementer logik for at sælge ejendom eller huse. Indtil videre går man bare konkurs
-            self.spiller.konkurs = True
+            spiller.konkurs = True
             self.næste_spiller()
             return
         #user input

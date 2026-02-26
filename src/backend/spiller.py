@@ -44,6 +44,7 @@ class Spiller:
         print(f"{self.navn} slog {terning1} og {terning2} og skal flytte {total} felter.")
         return total
 
+
     def _flyt(self, antal_felter: int, bræt_længde = 40):
         #modtag startbonus hvis spilleren passerer start
         if (self.pos + antal_felter) >= bræt_længde:
@@ -54,7 +55,7 @@ class Spiller:
 
 
     ### PENGE METODER ###
-    def _betal(self,beløb: int) -> bool:
+    def _betal(self,beløb: int) ->+ bool:
         
         if self.penge >= beløb:
             self.penge -= beløb

@@ -3,7 +3,7 @@ import numpy as np
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((1280, 1280))
+screen = pygame.display.set_mode((1000,1000))
 clock = pygame.time.Clock()
 running = True
 dt = 0
