@@ -12,6 +12,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'dashboard')->name('dashboard');
 });
 
-Route::get('/matador/start', [MatadorController::class, 'start']);
+Route::get('/matador/example_game_start', [MatadorController::class, 'start']);
 
 require __DIR__.'/settings.php';

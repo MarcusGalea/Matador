@@ -7,5 +7,10 @@ COPY ./requirements.txt /code/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./API /code/API
+COPY ./app /code/app
 
-CMD ["fastapi", "run", "API/api.py", "--host", "0.0.0.0", "--port", "81"]
+CMD ["python", "-m", "uvicorn", "API.api:app", "--host", "0.0.0.0", "--port", "81", "--reload"]
+
+# COPY ./API /code/API
+
+# CMD ["fastapi", "run", "API/api.py", "--host", "0.0.0.0", "--port", "81"]

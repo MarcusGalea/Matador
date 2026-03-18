@@ -1,4 +1,4 @@
-from src.backend.felt import Felt, Grund
+from app.src.model.felt import Felt, Grund
 import random
 #set seed
 random.seed(42)

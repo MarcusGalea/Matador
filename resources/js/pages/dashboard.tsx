@@ -19,14 +19,13 @@ export default function Dashboard() {
                     <button
                         onClick={async () => {
                             try {
-                                const response = await fetch('/matador/start');
+                                const response = await fetch('/matador/example_game_start');
                                 console.log('status', response.status);
 
-                                const text = await response.text();
-                                console.log('raw body', text);
+                                const raw = await response.text();
+                                console.log('raw body', raw);
 
-                                const data = JSON.parse(text);
-                                alert(data.text);
+                                alert(raw);
                             } catch (error) {
                                 console.error('fetch failed', error);
                                 alert('Request failed - check console');

@@ -21,8 +21,11 @@ git clone https://github.com/MarcusGalea/Matador.git
 cd Matador
 ```
 
-### 2. Copy environment variable
+### 2. Copy environment variable file then edit it to set your database credentials and whatever else you need
 cp .env.example .env
+
+You can run the following command to generate an application key, which is required for Laravel to function properly:
+php artisan key:generate
 
 ### 3. Install dependencies
 composer install

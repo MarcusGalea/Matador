@@ -1,5 +1,5 @@
-from src.backend.spiller import Spiller
-from src.backend.felt import Felt, Grund
+from src.model.spiller import Spiller
+from src.model.felt import Felt, Grund
 
 class Bræt:
     def __init__(self, 
