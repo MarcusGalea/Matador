@@ -28,7 +28,19 @@ cp .env.example .env
 composer install
 npm install
 
-### 4. Start Docker containers
+### 4. Build assets and install dependencies
+npm install && npm run build
+composer install
+
+### 5. Start Docker containers
 Make sure Docker is running, then run the command:
 ./vendor/bin/sail up -d
 
+### 6. Run database migrations and seeders
+./vendor/bin/sail artisan migrate --seed
+
+### 7. Run the Laravel development server
+./vendor/bin/sail composer run dev
+
+### 8. Access the application
+Open your web browser and navigate to http://localhost:80 (or whichever port was binded in compose.yml) to access the Matador game.
