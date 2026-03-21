@@ -14,6 +14,11 @@ Before starting, install:
 
 Make sure to run either on Linux or WSL2 on Windows, and to have Docker running at all times
 
+easy bash command to install php and composer on Linux / WSL2:
+```
+/bin/bash -c "$(curl -fsSL https://php.new/install/linux/8.4)"
+```
+
 ## Procedure
 ### 1. Clone the repository
 
