@@ -10,8 +10,9 @@ Before starting, install:
 - Docker (Desktop)
 - Composer
 - WSL2 (if using Windows)
-- PHP (optional, only if not using Sail)
 - Node.js + npm
+
+Make sure to run either on Linux or WSL2 on Windows, and to have Docker running at all times
 
 ## Procedure
 ### 1. Clone the repository
@@ -21,29 +22,42 @@ git clone https://github.com/MarcusGalea/Matador.git
 cd Matador
 ```
 
-### 2. Copy environment variable file then edit it to set your database credentials and whatever else you need
+### 2. Setting up environment variables
+```bash
 cp .env.example .env
+```
 
 You can run the following command to generate an application key, which is required for Laravel to function properly:
+```bash
 php artisan key:generate
+```
 
-### 3. Install dependencies
+Install composer dependencies:
+```bash
 composer install
-npm install
+```
 
-### 4. Build assets and install dependencies
-npm install && npm run build
-composer install
+Now you can edit the .env file to set up your database connection and other environment variables. 
+```bash
+php artisan sail:install
+```
 
-### 5. Start Docker containers
+Make sure to set the database connection to match the one defined in your Docker Compose file (e.g., DB_HOST=pgsql, DB_DATABASE=matador, DB_USERNAME=sail, DB_PASSWORD=password).
+
+### 3. Install frontend dependencies and build assets
+```bash
+npm install && npm run build 
+```
+
+### 4. Start Docker containers
 Make sure Docker is running, then run the command:
 ./vendor/bin/sail up -d
 
-### 6. Run database migrations and seeders
+### 5. Run database migrations and seeders
 ./vendor/bin/sail artisan migrate --seed
 
-### 7. Run the Laravel development server
+### 6. Run the Laravel development server
 ./vendor/bin/sail composer run dev
 
-### 8. Access the application
-Open your web browser and navigate to http://localhost:80 (or whichever port was binded in compose.yml) to access the Matador game.
+### 7. Access the application
+Open your web browser and navigate to http://localhost:80 (or whichever port was binded in compose.yml) to access the Matador application. You should see the homepage where you can register a new account or log in with existing credentials.
