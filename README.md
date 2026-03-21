@@ -56,13 +56,19 @@ npm install && npm run build
 
 ### 4. Start Docker containers
 Make sure Docker is running, then run the command:
+```bash
 ./vendor/bin/sail up -d
+```
 
 ### 5. Run database migrations and seeders
+```bash
 ./vendor/bin/sail artisan migrate --seed
+```
 
 ### 6. Run the Laravel development server
+```bash
 ./vendor/bin/sail composer run dev
+```
 
 ### 7. Access the application
 Open your web browser and navigate to http://localhost:80 (or whichever port was binded in compose.yml) to access the Matador application. You should see the homepage where you can register a new account or log in with existing credentials.
